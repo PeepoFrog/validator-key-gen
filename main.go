@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	mnemonicsgenerator "github.com/KiraCore/tools/validator-key-gen/MnemonicsGenerator"
-	valkeygen "github.com/KiraCore/tools/validator-key-gen/ValKeyGen"
+	mnemonicsgenerator "github.com/PeepoFrog/validator-key-gen/MnemonicsGenerator"
+	valkeygen "github.com/PeepoFrog/validator-key-gen/ValKeyGen"
 )
 
 const PrivValidatorKeyGenVersion = "v0.3.47"

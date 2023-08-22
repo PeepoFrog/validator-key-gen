@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	valkeygen "github.com/KiraCore/tools/validator-key-gen/ValKeyGen"
+	valkeygen "github.com/PeepoFrog/validator-key-gen/ValKeyGen"
 	"github.com/cosmos/go-bip39"
 	"github.com/tendermint/tendermint/crypto/ed25519"
 	"github.com/tendermint/tendermint/p2p"
