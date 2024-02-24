@@ -55,9 +55,9 @@ func main() {
 
 	//Set prefix
 
-	fs.StringVar(&defaultPrefix, "prefix", "kira", "set prefix")
+	fs.StringVar(&defaultPrefix, "prefix", mnemonicsgenerator.DefaultPrefix, "set prefix")
 	//Set derive path
-	fs.StringVar(&defaultPath, "path", "44'/118'/0'/0/0", "set derive path")
+	fs.StringVar(&defaultPath, "path", mnemonicsgenerator.DefaultPath, "set derive path")
 
 	fs.Usage = func() {
 		fmt.Printf("Usage: %s --mnemonic=\"over where ...\" [OPTIONS]\n\n", fs.Name())
