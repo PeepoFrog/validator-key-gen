@@ -13,12 +13,22 @@ import (
 	"github.com/tendermint/tendermint/p2p"
 )
 
+const (
+	DefaultValidatorNodeKeyFileName string = "validator_node_key.json"
+	DefaultPrivValidatorKeyFileName string = "priv_validator_key.json"
+	DefaultValidatorNodeIdFileName  string = "validator_node_id.key"
+
+	DefaultPrefix string = "kira"
+	DefaultPath   string = "44'/118'/0'/0/0"
+)
+
 type MasterMnemonicSet struct {
 	ValidatorAddrMnemonic []byte
 	ValidatorValMnemonic  []byte
 	SignerAddrMnemonic    []byte
 	ValidatorNodeMnemonic []byte
 	ValidatorNodeId       []byte
+	PrivKeyMnemonic       []byte
 }
 
 // returns nodeId from mnemonic
@@ -51,7 +61,7 @@ func createMnemonicsFile(path string, mnemonicData []byte) error {
 	return nil
 }
 
-// acceps name and typeOfMnemonic as salt and mnemonic, for example MnemonicGenerator --name="validator" --type="addr"  - validator address
+// accepts name and typeOfMnemonic as salt and mnemonic, for example MnemonicGenerator --name="validator" --type="addr"  - validator address
 func generateFromMasterMnemonic(name, typeOfMnemonic string, masterMnemonic []byte) ([]byte, error) {
 	stringToHash := strings.ToLower(fmt.Sprintf("%s ; %s %s", masterMnemonic, name, typeOfMnemonic))
 	stringToHash = strings.ReplaceAll(stringToHash, " ", "")
@@ -79,7 +89,7 @@ func generateFromMasterMnemonic(name, typeOfMnemonic string, masterMnemonic []by
 //
 // go run .\main.go --mnemonic "want vanish frown filter resemble purchase trial baby equal never cinnamon claim wrap cash snake cable head tray few daring shine clip loyal series" --masterkeys .\test\ --master
 //
-// # FOR PACKAGE USSAGE
+// # FOR PACKAGE USAGE
 //
 // defaultPrefix: "kira"
 //
@@ -109,22 +119,29 @@ func MasterKeysGen(masterMnemonic []byte, defaultPrefix, defaultPath, masterkeys
 		// VALIDATOR_NODE_ID
 		mnemonicSet.ValidatorNodeId = generateNodeIdFromMnemonic(string(mnemonicSet.ValidatorNodeMnemonic))
 
-		//VALIDATOR_ADDR_MNEMONIC
+		// VALIDATOR_ADDR_MNEMONIC
 		mnemonicSet.ValidatorAddrMnemonic, err = generateFromMasterMnemonic("validator", "addr", masterMnemonic)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return mnemonicSet, err
 		}
 
-		//VALIDATOR_VAL_MNEMONIC
+		// VALIDATOR_VAL_MNEMONIC
 		mnemonicSet.ValidatorValMnemonic, err = generateFromMasterMnemonic("validator", "val", masterMnemonic)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return mnemonicSet, err
 		}
 
-		//SIGNER_ADDR_MNEMONIC
+		// SIGNER_ADDR_MNEMONIC
 		mnemonicSet.SignerAddrMnemonic, err = generateFromMasterMnemonic("signer", "addr", masterMnemonic)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			return mnemonicSet, err
+		}
+
+		// ssh mnemonic
+		mnemonicSet.PrivKeyMnemonic, err = DerivePrivKeyMnemonicFromMasterMnemonic(masterMnemonic)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return mnemonicSet, err
@@ -133,12 +150,12 @@ func MasterKeysGen(masterMnemonic []byte, defaultPrefix, defaultPath, masterkeys
 		if masterkeys != "" {
 			// validator_node_key.json validator_node_id.key" files
 			valkeygen.ValKeyGen(string(mnemonicSet.ValidatorNodeMnemonic), defaultPrefix, defaultPath, "",
-				fmt.Sprintf("%s/validator_node_key.json", masterkeys),
-				fmt.Sprintf("%s/validator_node_id.key", masterkeys),
+				fmt.Sprintf("%s/%s", masterkeys, DefaultValidatorNodeKeyFileName),
+				fmt.Sprintf("%s/%s", masterkeys, DefaultValidatorNodeIdFileName),
 				false, false, false)
 
 			// priv_validator_key.json files
-			valkeygen.ValKeyGen(string(mnemonicSet.ValidatorValMnemonic), defaultPrefix, defaultPath, fmt.Sprintf("%s/priv_validator_key.json", masterkeys), "", "", false, false, false)
+			valkeygen.ValKeyGen(string(mnemonicSet.ValidatorValMnemonic), defaultPrefix, defaultPath, fmt.Sprintf("%s/%s", masterkeys, DefaultPrivValidatorKeyFileName), "", "", false, false, false)
 
 			// mnemonics.env file
 			dataToWrite := []byte(fmt.Sprintf("MASTER_MNEMONIC=%s\nVALIDATOR_ADDR_MNEMONIC=%s\nVALIDATOR_NODE_MNEMONIC=%s\nVALIDATOR_NODE_ID=%s\nVALIDATOR_VAL_MNEMONIC=%s\nSIGNER_ADDR_MNEMONIC=%s\n ", masterMnemonic, mnemonicSet.ValidatorAddrMnemonic, mnemonicSet.ValidatorNodeMnemonic, mnemonicSet.ValidatorNodeId, mnemonicSet.ValidatorValMnemonic, mnemonicSet.SignerAddrMnemonic))
@@ -154,4 +171,24 @@ func MasterKeysGen(masterMnemonic []byte, defaultPrefix, defaultPath, masterkeys
 
 	}
 	return mnemonicSet, nil
+}
+
+// Accepts parent mnemonic as masterMnemonic and derives from it a sshMnemonic using generateFromMasterMnemonic func
+// salt is name and typeOfMnemonic hardcoded as const
+//
+// Constants:
+// name=ssh,
+// typeOfMnemonic=key.
+func DerivePrivKeyMnemonicFromMasterMnemonic(masterMnemonic []byte) (sshMnemonic []byte, err error) {
+	const name string = "priv"
+	const typeOfMnemonic string = "key"
+	err = valkeygen.CheckMnemonic(string(masterMnemonic))
+	if err != nil {
+		return nil, err
+	}
+	sshMnemonic, err = generateFromMasterMnemonic(name, typeOfMnemonic, masterMnemonic)
+	if err != nil {
+		return nil, fmt.Errorf("error while generating ")
+	}
+	return
 }
