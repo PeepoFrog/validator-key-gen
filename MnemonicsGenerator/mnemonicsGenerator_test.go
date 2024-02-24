@@ -66,8 +66,8 @@ var (
 	}
 )
 
-// This test excludes NodeSSHMnemonic to check if func return the proper origin mnemonics from original tool
-func TestMasterKeysGenWithOutSSHMnemonic(t *testing.T) {
+// This test excludes PrivKeyMnemonic to check if func return the proper origin mnemonics from original tool
+func TestMasterKeysGenWithOutPrivKeyMnemonic(t *testing.T) {
 	got, err := mnemonicsgenerator.MasterKeysGen([]byte(masterMnemonicForTest), mnemonicsgenerator.DefaultPrefix, mnemonicsgenerator.DefaultPath, "")
 	if err != nil {
 		t.Errorf("MasterKeysGen(%+s)\n error = %v", masterMnemonicForTest, err)
@@ -149,12 +149,12 @@ func TestMasterKeysGen(t *testing.T) {
 	}
 }
 
-func TestDeriveSSHMnemonicFromMasterMnemonic(t *testing.T) {
-	sshMnemonic, err := mnemonicsgenerator.DerivePrivKeyMnemonicFromMasterMnemonic([]byte(masterMnemonicForTest))
+func TestDerivePrivKeyMnemonicFromMasterMnemonic(t *testing.T) {
+	privKeyMnemonic, err := mnemonicsgenerator.DerivePrivKeyMnemonicFromMasterMnemonic([]byte(masterMnemonicForTest))
 	if err != nil {
-		t.Errorf("unable to derive ssh mnemonic from <%s>, error: %v", masterMnemonicForTest, err)
+		t.Errorf("unable to derive privKey mnemonic from <%s>, error: %v", masterMnemonicForTest, err)
 	}
-	if string(sshMnemonic) != string(wantedMnemonicSet.PrivKeyMnemonic) {
-		t.Errorf("derived ssh mnemonic is not equal to wanted mnemonic\nGot: %s\nWanted:%s", sshMnemonic, wantedMnemonicSet.PrivKeyMnemonic)
+	if string(privKeyMnemonic) != string(wantedMnemonicSet.PrivKeyMnemonic) {
+		t.Errorf("derived privKey mnemonic is not equal to wanted mnemonic\nGot: %s\nWanted:%s", privKeyMnemonic, wantedMnemonicSet.PrivKeyMnemonic)
 	}
 }
