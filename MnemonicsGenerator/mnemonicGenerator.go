@@ -207,6 +207,9 @@ func DerivePrivKeyMnemonicFromMasterMnemonic(masterMnemonic []byte) (privKey []b
 	return
 }
 
+// # Usage:
+//
+//	GenerateValidatorNodeKeyJson(mnemonicSet.ValidatorNodeMnemonic, sekaidConfigFolder+"/node_key.json", DefaultPrefix, DefaultPath)
 func GenerateValidatorNodeKeyJson(validatorNodeMnemonic []byte, keyPath, defaultPrefix, defaultPath string) error {
 	// validator_node_key.json file
 	err := valkeygen.ValKeyGen(string(validatorNodeMnemonic), defaultPrefix, defaultPath, "",
@@ -231,6 +234,9 @@ func GenerateValidatorNodeIdFile(validatorNodeMnemonic []byte, keyPath, defaultP
 	return nil
 }
 
+// # Usage:
+//
+//	GeneratePrivValidatorKeyJson(mnemonicSet.ValidatorValMnemonic, sekaidConfigFolder+"/priv_validator_key.json", DefaultPrefix, DefaultPath)
 func GeneratePrivValidatorKeyJson(validatorValMnemonic []byte, keyPath, defaultPrefix, defaultPath string) error {
 	// priv_validator_key.json file
 	err := valkeygen.ValKeyGen(string(validatorValMnemonic), defaultPrefix, defaultPath, keyPath, "", "", false, false, false)
